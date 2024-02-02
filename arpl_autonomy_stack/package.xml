@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>arpl_autonomy</name>
+  <version>0.0.0</version>
+  <description>The arpl_autonomy package</description>
+
+  <maintainer email="lguanrui@nyu.edu">Guanrui Li</maintainer>
+
+  <!-- Commonly used license strings: -->
+  <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
+  <license>TODO</license>
+
+  <author email="lguanrui@nyu.edu">Guanrui Li</author> 
+
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+</package>

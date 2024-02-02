@@ -1,0 +1,12 @@
+<launch>
+
+ 
+   
+<include file="$(find disparity)/launch/disparity_voxl3.launch" />
+<include file="$(find pointcloud_manager)/launch/pointcloud_manager_nodelet.launch" />
+<include file="$(find voxblox_ros)/launch/pc_manager.launch" />
+
+</launch>
+
+
+

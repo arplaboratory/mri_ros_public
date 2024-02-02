@@ -1,0 +1,8 @@
+prefix=/home/arpl/luca_ws/src/drone_teleoperation/build/devel
+
+Name: drone_teleoperation
+Description: Description of drone_teleoperation
+Version: 0.0.0
+Cflags: -I/home/arpl/luca_ws/src/drone_teleoperation/include
+Libs: -L${prefix}/lib -lmav_manager
+Requires: roscpp rospy std_msgs mav_manager trackers_msgs quadrotor_msgs scene_understanding_pkg_msgs scene_understanding_pkg

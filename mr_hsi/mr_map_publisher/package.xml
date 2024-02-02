@@ -1,0 +1,20 @@
+<package>
+	<name>mr_map_publisher</name>
+	<version>0.1.0</version>
+	<description>Publish obstacle and gates for human swarm interaction with MR.</description>
+	<license>MIT</license>
+	<maintainer email="yangzhou@nyu.edu">Yang Zhou</maintainer>
+	<buildtool_depend>catkin</buildtool_depend>	
+	<build_depend>std_msgs</build_depend>
+	<build_depend>sensor_msgs</build_depend>
+	<build_depend>vision_msgs</build_depend>
+	<build_depend>message_geenration</build_depend>
+	<build_depend>std_srvs</build_depend>
+
+	<run_depend>message_runtime</run_depend>
+	<run_depend>rospy</run_depend>
+	<run_depend>std_srvs</run_depend>
+	<run_depend>sensor_msgs</run_depend>
+	<run_depend>std_srvs</run_depend>
+	<!--run_depend>mav_manager</run_depend-->
+</package>

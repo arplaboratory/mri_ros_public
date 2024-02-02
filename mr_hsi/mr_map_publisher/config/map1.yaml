@@ -1,0 +1,4 @@
+obstacle_list:
+  [ {x: -1.8, y: 0.0, z: 1.0, qx: 0, qy: 0, qz: 0, qw: 1, sx: 0.2, sy: 0.6, sz: 0.2}, {x: -0.6, y: -0.6, z: 1.0, qx: 0, qy: 0, qz: 0, qw: 1, sx: 0.2, sy: 1, sz: 0.2}, {x: 0.6, y: 0.6, z: 1.0, qx: 0, qy: 0, qz: 0, qw: 1, sx: 0.2, sy: 1, sz: 0.2}]
+gate_list:
+  [ {x: 1.2, y: 0.0, z: 1.0, qx: 0, qy: 0, qz: 0, qw: 1, sx: 0.2, sy: 1, sz: 0.2}]

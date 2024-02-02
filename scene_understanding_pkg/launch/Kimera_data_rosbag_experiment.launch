@@ -1,0 +1,12 @@
+<launch>
+<param name="ROS_IP" value="128.238.39.127" />
+
+<node name="Kimera_Vio_Ros" pkg="scene_understanding_pkg" type="Kimera_vio_data" args="--wait" output="screen" respawn="true" />
+
+<node pkg="tf" type="static_transform_publisher" name="mocap_sr_publisher" args="0 0 0 0 0 0 1 /mocap /mocap_sr"/>
+
+ <!-- UNITY COMM PARAMS -->
+ <group ns="kimera_data_params">
+      <rosparam file="$(find scene_understanding_pkg)/config/kimera_data_params.yaml" />
+ </group>
+</launch>

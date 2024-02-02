@@ -1,0 +1,10 @@
+frame_id: '/world'
+alpha: 0.4
+beta: 2.0
+kappa: 0.0
+noise_std:
+        process:
+                acc: {x: 0.2, y: 0.2, z: 0.2}
+                w: {x: 0.1, y: 0.1, z: 0.1}
+                acc_bias: {x: 0.05, y: 0.05, z: 0.05}
+publish_timestep: 0.008

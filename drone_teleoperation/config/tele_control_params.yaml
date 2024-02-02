@@ -1,0 +1,107 @@
+desired_txt_folder_name: Exp_9
+log_files_directory: /home/arpl/luca_ws/DATA/test1/
+
+
+
+# #Scenario 1: Only Sim
+# #Scenario 2: Sim + Unity Simulator
+# #Scenario 3: Real + Rviz
+# #Scenario 4: Real + Hololens or Unity Sim
+scenario: 1
+haptic_feedback_in_use: false
+
+
+#General Params for visualization
+odom_rate_to_unity: 10 #This is expressed in Hertz
+visualization_frame_id: 'mocap_sr'
+visualize_force_history: true  #permits to draw the path of the robot in rviz visualizing the history of the forces (admittance + obst)
+time_to_pub_path_history: 5   #define the possibility to choose after how many second publish in rviz an update in the pose and force history 
+clear_path_history_after_sec: 5 #give to the user the possibility to delete the cache of the path after tot seconds 
+mesh_publish_period: 1 #Define the timing to publish the mesh to unity or rviz (in seconds)
+
+#Safety Boundaries - Define the roo safety boundary. The robot will not be allowd to move outside.
+#P1 is the lower bound corner of the rectangle
+#P2 is the upper bound corner of the rectangle
+#Be sure P1x > P2x and P1y < P2y
+safety_boundaries:  
+                P1: {x: 2.3, y: -2.1}
+                P2: {x: -2.0, y: 1.5}
+
+# Number of consecutive target positions to take into consideration 
+# during the position average procedure 
+n_average_stamps: 40 #40
+
+
+#Gains for SO3 controller
+gains:
+  pos: {x: 10.4, y: 10.4, z: 10.4} # {x: 7.4, y: 7.4, z: 10.4}
+  vel: {x: 4.8, y: 4.8, z: 6.0}
+
+
+
+######## Admittance GAINS 
+admittance_gains:
+    x_dir: {M: 2.7, D: 70, K: 20}
+    y_dir: {M: 2.7, D: 70, K: 20}
+    D_MIN: 1
+    D_MAX: 50
+    damping_func: 'exponential'
+
+#Virtual FOrce Gains  
+force_gains: 
+    pos: {x: 3.5, y: 3.5, z: 0.5}
+    vel: {x: -0.7, y: -0.7, z: -0.3}
+    F_max: 20
+    F_min: -20
+    
+
+#Gains for the force amplification before being send to the haptic device:
+#These Gains does not affect the admittance contrioller but just modify the perceived force before being send to the hapic device (only relevant on the user side)
+haptic_gains:
+    admittance_force: {x: 0.8, y: 0.8, z: 0.0}
+    Kp_obst_force: {x: 1.2, y: 1.2, z: 0.0}
+    Kd_obst_foce: {x: 0.8, y: 0.8, z: 0.0} #Derivative gain for the obstacle force sent to the haptic device
+
+
+#Number of Obstacles (maximum number 3), valid ONLY in REAL: 
+#In this section the coordeinates respect the world frame of the obstacles need to be inserted 
+obstacles:
+   n_obstacles: 3
+   obst_1_pos_and_dim: {x: 1.3, y: -0.5, sx: 0.5, sy: 0.8}  #pillars
+   obst_2_pos_and_dim: {x: -0.40, y: -1.34, sx: 0.8, sy: 1.0} #chair 1
+   obst_3_pos_and_dim: {x: -0.48, y: 1.00, sx: 0.8, sy: 1.0} #chair 2
+
+
+######### Perception Parameters related to the environment perceptiona and Obstacle Force Sensing
+obstacle_force_function: 'linear' #it could be exponential or linear 
+horizon: 1.0  #horizon in meters around the robot where the force is evaluated 
+lamda: 1.2 #exponential decay params 
+Fs: 8.0    #Maximum value of the frepulsive force from the obstacles 
+avg_stamps: 15
+
+
+
+
+######### Planner Final Goal 
+#The Final goal is updated by rrt_star_voxel.py depending if the x_drone bigger or lower than zero. 
+#Moreover some randomness is added on the y_axis, with the sign of the coordinate that can be flipped. 
+final_goal: 
+         P1: {x: 1.0, y: -0.5} #The final goal can appear in y = 0.4 or y = -0.4
+       
+final_goal_sim:
+         P1: {x: 0.5, y: 0.1} #{x: 0.5, y: 0.0}
+         
+
+intermediate_goals: 
+             P1: {x: 0.4, y: -0.3}
+             P2: {x: -1.0, y: 0.3}
+             random: true #if true the intermediate goals can appear anywhere (a check is made to avoid them to appear
+                          # where the obstacle is located (supposed to be in x 0.0 and y 0.3)
+             
+             
+
+
+
+
+
+

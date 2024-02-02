@@ -1,0 +1,17 @@
+
+
+#CASE 0: Sim Pose: Publish tf between simulation and mocap for voxblox
+# Case 1: Mocap Voxl3 Pose: Publish Voxl3 pose in Rviz
+# Case 2: Vio Voxl3 Pose: publish tf voxl3 and tf mocap mpcap_sr in Rviz, Publish tf_world (Mocap_sr pose is obtained from Hololens)
+#Case 3; Not of above
+#in_simulation: true
+
+#Obtsacle Force definition parameetrs 
+horizon: 0.5  #horizon in meters around the robot where the force is evaluated 
+lamda: 1.2 #exponential decay params 
+Fs: 5.0    #Maximum value of the frepulsive force from the obstacles 
+avg_stamps: 5
+
+#Define the timing to publish the mesh to unity or rviz (in seconds)
+mesh_publish_period: 1
+

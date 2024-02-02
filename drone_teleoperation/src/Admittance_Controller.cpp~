@@ -1,0 +1,262 @@
+#ifndef _Admittance_Controller_SOURCE_
+#define _Admittance_Controller_SOURCE_
+
+#include <iostream>
+#include <cmath>
+#include <eigen3/Eigen/Dense>
+#include "/home/arpl/luca_ws/src/drone_teleoperation/include/drone_teleoperation/Admittance_Controller.h"
+
+using namespace std;
+
+class Admittance_Controller_Impl
+{
+   public:
+   //Ks = stifness value in the input force
+   // Kd = damping value in the input force
+   // M = Mass in the impedence controller 
+   // D = Damping in the impedence controller
+   // K = Stifness value in the impedence controller
+   
+   Eigen::Matrix2f  A;
+   Eigen::Vector2f  B;
+   Eigen::Vector2f  yz; // State Vector as code in matlab
+   Eigen::Vector2f dydz;  // Derivative of the state Vector as code in matlab
+  Eigen::Vector2f  yz_predict;  //Derivation of the state at time t+1
+
+   //States 
+   float y = 0.0;
+   float z = 0.0;
+   Admittance_Controller_Impl(double dt, double Ks, double Kd, double F_max, double F_min, double M, double D, double K);
+
+   //Destructor
+    ~Admittance_Controller_Impl();
+
+     //Evaluate the Xc commanded position and Vc commanded  velocity
+    void calculate(double des_position, double actual_position,  double des_vel_value, double drone_vel, double dt); 
+    double obtain_evaluated_force();
+    double obtain_commanded_position();
+    double obtain_commanded_velocity();
+
+
+    private:
+    double dt_;
+    double Ks_;
+    double Kd_;
+    double F_max_;
+    double F_min_;
+    double F_;
+    double M_; //Mass
+    double D_; //Damping
+    double K_; //Stifness
+
+     //RK Gains 
+     float K0;
+     float K1;
+     float K2;
+     float K3;
+
+     float L0;
+     float L1;
+     float L2;
+     float L3;
+
+    //Error 
+    double e_t = 0.0;
+    double e_t_old = 0.0;
+    double e_dot_t = 0.0;
+    double e_dot_t_old = 0.0;
+
+    double x_dot_c; 
+    double x_c;
+
+    bool init = true;
+
+   
+
+};
+
+Admittance_Controller::Admittance_Controller(double dt, double Ks, double Kd, double F_max, double F_min, double M, double D, double K)
+{
+    Imcimpl = new Admittance_Controller_Impl(dt, Ks, Kd, F_max, F_min, M, D, K);
+}
+
+
+void Admittance_Controller::calculate(double des_position, double actual_position,  double des_vel_value, double drone_vel, double dt)
+{
+    return Imcimpl -> calculate(des_position, actual_position, des_vel_value, drone_vel, dt);
+
+}
+
+double Admittance_Controller::obtain_evaluated_force()
+{
+    return Imcimpl ->obtain_evaluated_force();
+}
+
+double Admittance_Controller::obtain_commanded_position()
+{
+     return Imcimpl ->obtain_commanded_position();
+}
+
+double Admittance_Controller::obtain_commanded_velocity()
+{
+     return Imcimpl ->obtain_commanded_velocity();
+}
+
+Admittance_Controller::~Admittance_Controller() 
+{
+    delete Imcimpl;
+}
+
+/* Implementation */
+
+Admittance_Controller_Impl::Admittance_Controller_Impl(double dt, double Ks, double Kd, double F_max, double F_min, double M, double D, double K):
+dt_(dt),
+Ks_(Ks),
+Kd_(Kd),
+F_max_(F_max),
+F_min_(F_min),
+F_(),
+M_(M),
+D_(D),
+K_(K),
+x_dot_c(),
+x_c(),
+yz(),
+dydz(),
+A(),
+B(),
+y(),
+z(),
+K0(),
+K1(),
+K2(),
+K3(),
+L0(),
+L1(),
+L2(),
+L3(),
+yz_predict(),
+init()
+{
+}
+
+
+
+void Admittance_Controller_Impl::calculate(double des_position, double actual_position, double des_vel_value, double drone_vel, double dt)
+{  
+    //Evaluate Force acting on x axis
+    //evaluate_force(des_position, actual_position, F_, Ks_);
+    F_ = Ks_ * (actual_position - des_position) + Kd_ * des_vel_value;
+    if (init)
+    {
+       A << 0.0, 1.0, -K_/M_, -D_/M_;
+       B << 0.0, 1/M_;
+       yz << 0.0, 0.0; 
+       init = false;
+    }
+    else
+    {
+        A << 0.0, 1.0, -K_/M_, -D_/M_;
+        B << 0.0, 1/M_;
+        yz << y, z;
+    }
+    
+    //First Step: Evaluate K0 K1
+    dydz =  A * yz + B*F_; 
+    
+    cout << "F_: " <<  F_<< endl;
+   
+    K0 = dt * dydz[0];
+    L0 = dt * dydz[1];
+    
+   
+    float yz_0 = yz[0] + 1/2* K0; //y + 1/2*K0
+    float yz_1 = yz[1] + 1/2* L0; //z + 1/2*L0
+   
+    yz << yz_0, yz_1;
+    dydz = A * yz + B*F_;
+
+    //Evaluation K1, L1
+    K1 = dt *dydz[0];
+    L1 = dt *dydz[1];
+ 
+    yz_0 = yz[0]+ 1/2* K1; 
+    yz_1 = yz[1] + 1/2* L1; 
+    yz << yz_0, yz_1;
+    dydz = A * yz + B*F_;
+
+    //Evaluation K2, L2
+    K2 = dt *dydz[0];
+    L2 = dt *dydz[1];
+   
+    yz_0 = yz[0]+ 1/2* K2; 
+    yz_1 = yz[1] + 1/2* L2; 
+    yz << yz_0, yz_1;
+    dydz = A * yz + B*F_;
+    
+    //Evaluation K3, L3
+    K3 = dt *dydz[0];
+    L3 = dt *dydz[1];
+
+    yz_0 = yz[0] + 1/2* K3; 
+    yz_1 = yz[1] + 1/2* L3; 
+    yz << yz_0, yz_1;
+    dydz = A * yz + B*F_;
+
+    //Prediction step
+    float yz_predict_0 = y + 1/6.0*(K0 + 2*K1 + 2*K2 + K3);
+    float yz_predict_1 = z + 1/6.0*(L0 + 2*L1 + 2*L2 + L3);
+    //Value of the state at time t+1
+    yz_predict <<  yz_predict_0, yz_predict_1;
+   
+    //Value for the next iterations 
+    y = yz_predict[0];
+    z = yz_predict[1];
+
+    
+
+    //Comanded Position and Velocity
+    x_c = des_position - (double)y;
+    x_dot_c = des_vel_value - (double)z;
+    
+    cout <<"x_c: " << x_c << "x_dot_c: " << x_dot_c << endl;
+    
+    cout << "AC dt: " << dt << endl;
+    /*
+    double a1 = F_- K_*e_t_old;
+    double a2 = a1 - D_*e_dot_t_old;
+    double a3 = 1/M_ * (a2);
+    e_dot_t += a3 * dt_;
+    e_t += e_dot_t*dt_;
+    x_dot_c = des_vel_value - e_dot_t;
+    //x_dot_c = drone_vel - e_dot_t;
+    x_c = des_position - e_t; 
+    //x_c = actual_position - e_t; 
+    
+    e_t_old = e_t;
+    e_dot_t_old = e_dot_t;
+
+    */
+}
+
+double Admittance_Controller_Impl::obtain_evaluated_force()
+{
+   return F_;
+}
+
+double Admittance_Controller_Impl::obtain_commanded_position()
+{
+    return x_c;
+}
+
+double Admittance_Controller_Impl::obtain_commanded_velocity()
+{
+    return x_dot_c;
+}
+
+
+Admittance_Controller_Impl::~Admittance_Controller_Impl()
+{
+}
+
+#endif

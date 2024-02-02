@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.0)
+project(mr_map_publisher)
+
+find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs vision_msgs genmsg message_generation)
+#add_service_files(DIRECTORY srv FILES CallRobot.srv Vec4.srv)
+#catkin_python_setup()
+#add_message_files(FILES	BoundingBox3DArray.msg)
+#generate_messages(DEPENDENCIES std_msgs vision_msgs)
+catkin_package(DEPENDS message_runtime)
+install(PROGRAMS scripts/mr_map_publisher DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

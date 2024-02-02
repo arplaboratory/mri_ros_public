@@ -1,0 +1,17 @@
+<launch>
+  <include file="$(find arpl_autonomy)/launch/simulator/single_quadrotor_sim.launch">
+    <arg name="model"           value="quadrotor1"/>
+    <arg name="use_rviz"        value="true"/>
+    <arg name="color/r"         value="1.0"/>
+    <arg name="color/g"         value="0.0"/>
+    <arg name="color/b"         value="0.0"/>
+  </include>
+
+  <include file="$(find arpl_autonomy)/launch/simulator/single_quadrotor_sim.launch">
+    <arg name="model"           value="quadrotor2"/>
+    <arg name="use_rviz"        value="false"/>
+    <arg name="color/r"         value="0.0"/>
+    <arg name="color/g"         value="0.0"/>
+    <arg name="color/b"         value="1.0"/>
+  </include>
+</launch>

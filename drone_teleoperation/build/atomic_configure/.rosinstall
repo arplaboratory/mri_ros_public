@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/arpl/luca_ws/src/drone_teleoperation/build/devel/setup.sh

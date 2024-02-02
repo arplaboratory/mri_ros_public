@@ -1,0 +1,41 @@
+<launch>
+<!--param name="ROS_IP" value="128.238.39.127" /-->
+<arg name="mav_name" default="$(env MAV_NAME)"/> <!-- "$(env MAV_NAME)" -->
+
+<arg name="odom_topic" value="/$(arg mav_name)/odom"/>
+<arg name="transition_topic" value="/$(arg mav_name)/trackers_manager/transition"/>
+<arg name="hovering_topic" value="/$(arg mav_name)/mav_services/hover"/>
+<arg name="position_cmd_topic" value="/$(arg mav_name)/position_cmd"/>
+<arg name="node_start_delay" default="2.0" />  
+
+
+
+<!--node name="tele_admittance_control" pkg="drone_teleoperation" type="admittance_teleop_voxl" args="wait" output="log" respawn="true" /-->
+<node name="interactive_marker_voxl" pkg="interactive_marker_tutorials" type="basic_controls_voxl" args="--wait" output="log" respawn="true" >
+<remap from="odom" to="$(arg odom_topic)"/>
+</node>
+
+<node name="admittance_hri_server_node" pkg="drone_teleoperation" type="admittance_hri_server" args="--wait" output="screen" respawn="true"  launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@' " >
+<remap from="odom" to="$(arg odom_topic)"/>
+<remap from="tracker_transition" to="$(arg transition_topic)"/>
+<remap from="pos_cmd" to="$(arg position_cmd_topic)"/>
+<remap from="hovering" to="$(arg hovering_topic)"/>
+</node>
+
+
+<node pkg="tf" type="static_transform_publisher" name="mocap_sr_publisher" args="0 0 0 0 0 0 1 mocap mocap_sr 100" />
+
+<!--include file="$(find scene_understanding_pkg)/launch/Kimera_data.launch" /-->
+   
+<!--node name="Voxl_mapping" pkg="scene_understanding_pkg" type="Kimera_vio_data" args="wait" output="screen" respawn="true" /-->
+
+<!-- Keybpoard selection --> <!-- Can Be substituted by a joystic-->
+<!--node name="user_keyboard_input" pkg="drone_teleoperation" type="keyboard_inputs_for_voxl.py" args=" wait" output="screen" respawn="true"/-->
+
+<!-- UNITY COMM PARAMS -->
+ <group ns="tele_control_params">
+      <rosparam file="$(find drone_teleoperation)/config/tele_control_params.yaml" />
+ </group>
+
+
+</launch>

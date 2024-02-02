@@ -1,0 +1,79 @@
+<launch>
+  <arg name="name" default="quadrotor"/>
+  <arg name="odom_name" default="odom"/>
+  <arg name="world_frame_id" default="world"/>
+  <arg name="vio_ukf_odom" default="true"/>
+  <arg name="odom_topic" value="$(arg name)/quadrotor_ukf/control_odom"/>
+   
+  <!--Color--> 
+  <arg name="color/r" default="0.0"/>
+  <arg name="color/g" default="0.0"/>
+  <arg name="color/b" default="1.0"/>
+  <arg name="color/a" default="0.7"/>
+  
+  <!--Run RVIZ--> 
+  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find arpl_autonomy)/config/station/rviz_config.rviz">
+   </node>
+   
+   <group if="$(arg vio_ukf_odom)">
+   <!--Visualize True Path with OpenVins Odom and the correct remap--> 
+  <node name="quadrotor_path_visualization_vicon" pkg="mesh_visualization" type="quadrotor_path_visualization" output="screen">
+   <param name="frame_name" type="str" value="$(arg world_frame_id)"/>     
+   <remap from="~odom" to="$(arg odom_topic)"/>    
+   <remap from="~quadrotor_path" to="/quadrotor/quadrotor_path_visualization/quadrotor_path"/>
+   <remap from="~quadrotor_path" to="/quadrotor/quadrotor_path_visualization/quadrotor_path"/>
+  </node>
+  </group>
+  
+   <group unless="$(arg vio_ukf_odom)">
+    <!--Visualize True Path with Vicon--> 
+   <node name="quadrotor_path_visualization_vio" pkg="mesh_visualization" type="quadrotor_path_visualization" output="screen">
+   <param name="frame_name" type="str" value="$(arg world_frame_id)"/>     
+   <remap from="~odom" to="$(eval arg('name')+'/'+arg('odom_name'))"/>    
+   <remap from="~quadrotor_path" to="/quadrotor/quadrotor_path_visualization/quadrotor_path"/>
+  </node>
+   
+    <include file="$(find mocap_vicon)/launch/vicon.launch">
+    </include>
+  </group>
+  
+  
+ <group if="$(arg vio_ukf_odom)">
+   <!--Mesh Visualization Model with OpemVins --> 
+  <node pkg="mesh_visualization"
+    type="mesh_visualization"
+    name="mesh_visualization_vicon"
+    output="screen">
+    <param name="new_frame_id" type="str" value="$(arg world_frame_id)"/>     
+    <param name="mesh_resource" value="package://mesh_visualization/mesh/snapdragonflight.stl"/>
+    <param name="color/r" value="$(arg color/r)"/>
+    <param name="color/g" value="$(arg color/g)"/>
+    <param name="color/b" value="$(arg color/b)"/>
+    <param name="color/a" value="$(arg color/a)"/>
+    <!--INPUT refers to the odometry that you want to visualize with the mesh -->
+    <remap from="~input" to="$(arg odom_topic)"/>   
+    <remap from="~robot" to="/quadrotor/mesh_visualization/robot"/>
+    </node>
+  </group>
+  
+   <group unless="$(arg vio_ukf_odom)">
+    <!--Mesh Visualization Model with Vicon --> 
+   <node pkg="mesh_visualization"
+    type="mesh_visualization"
+    name="mesh_visualization_vicon"
+    output="screen">
+    <param name="new_frame_id" type="str" value="$(arg world_frame_id)"/>     
+    <param name="mesh_resource" value="package://mesh_visualization/mesh/hummingbird.mesh"/>
+    <param name="color/r" value="$(arg color/r)"/>
+    <param name="color/g" value="$(arg color/g)"/>
+    <param name="color/b" value="$(arg color/b)"/>
+    <param name="color/a" value="$(arg color/a)"/>
+    <!--INPUT refers to the odometry that you want to visualize with the mesh -->
+    <remap from="~input" to="$(eval arg('name')+'/'+arg('odom_name'))"/>
+    <remap from="~robot" to="/quadrotor/mesh_visualization/robot"/>
+    </node>
+  </group>
+ 
+
+  
+</launch>

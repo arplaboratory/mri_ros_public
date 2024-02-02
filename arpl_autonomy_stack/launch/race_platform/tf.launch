@@ -1,0 +1,10 @@
+<launch>
+  
+  
+ <!-- Two fixed tf, respectively map and world, are added on top of the odom frame, which re[resent the tranformation describing the pose of the drone in 3D space. This frame are mostly for visualization purpose, to keep the system integrity and to make the system reliable if the map performs some loop closure-->
+  <node pkg="tf" type="static_transform_publisher" name="from_world_to_map" args="0 0 0 0 0 0 1 world map 100" />
+   <node pkg="tf" type="static_transform_publisher" name="from_map_to_odom" args="0 0 0 0 0 0 1 map odom 100" />
+
+</launch>
+ 
+

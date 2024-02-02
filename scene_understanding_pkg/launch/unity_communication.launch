@@ -1,0 +1,10 @@
+<launch>
+<param name="ROS_IP" value="128.238.39.127" />
+
+<node name="SU_Unity_communication" pkg="scene_understanding_pkg" type="SU_Unity_comm" args="--wait" output="screen" respawn="true" />
+
+ <!-- UNITY COMM PARAMS -->
+ <group ns="unity_comm_param">
+      <rosparam file="$(find scene_understanding_pkg)/config/unity_communication_params.yaml" />
+ </group>
+</launch>

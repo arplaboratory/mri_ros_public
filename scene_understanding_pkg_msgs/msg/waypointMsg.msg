@@ -1,0 +1,14 @@
+std_msgs/Header header  
+geometry_msgs/Pose pose
+geometry_msgs/Pose velocity
+geometry_msgs/Pose acceleration
+geometry_msgs/Pose jerk 
+geometry_msgs/Pose snap 
+bool precision_mode 
+#duration duration
+bool land 
+bool is_moving 
+float64 radius   
+float64 speed 
+float64 relyaw
+uint8 counter     

@@ -1,0 +1,46 @@
+gains:
+
+ pos: {x: 10.6, y: 10.6, z: 15.0} ##Tuned per Giuseppe on Voxl2_3 yesterda y accounting for mass imbalance
+ vel: {x: 4.7, y: 4.7, z: 7.0}
+ rot: {x: 0.2, y: 0.2, z: 0.03}
+ ang: {x: 0.018, y: 0.018, z: 0.001}
+ ki:  {x: 0.00, y: 0.004, z: 0.03}
+corrections:
+  kf: 0.0
+  r: 0.0
+  p: 0.0
+
+mode: 1
+# Mechanical properties of quadrotor for rpm control
+kf: 4.17e-09 
+km: 3.97e-11 
+inertia: {ixx: 0.000601, iyy: 0.000595, izz: 0.002076}
+min_rpm: 5500
+max_rpm: 21000
+
+#dx: 0.071 # Half of the distance between motor 0(left) and 3(right) 
+#dy: 0.071 # Half of the distance between motor 0(top) and 1(down)
+dx: 0.142 # distance between motor 0(left) and 3 (right)
+dy: 0.142 # distance between motor 0(top) and 1(bottom)
+
+# set ratios to 0.5 for nominal center of mass
+ratio_x: 0.5 # shifting the center of mass by ratio on body x axis
+ratio_y: 0.52 # shifting the center of mass by ratio on body y axis 
+rpm_pub_freq: 700 #Set the frequency we publish the RPMs at
+#####################################
+#                  ^ x
+#           dx*    |    dx*
+#          ratio   | (1-ratio) 
+#      0<--------->|<--------->3
+#      ^           |
+#      |    dy*    |
+#      |   ratio   |
+#      v           |
+# <----------------|---------------->
+# y    ^           |
+#      |           |
+#      |    dy*    |
+#      | (1-ratio) |
+#      v           |
+#      1           |            2
+#                  v

@@ -1,0 +1,13 @@
+<launch>
+<param name="ROS_IP" value="128.238.39.127" />
+
+
+<node name="Kimera_Vio_Ros" pkg="scene_understanding_pkg" type="Kimera_vio_data_for_rosbag" args="--wait" output="screen" respawn="true" />
+
+<!--node name="Hololens_Mesh_Data" pkg="scene_understanding_pkg" type="display_received_meshes_in_rviz" args="wait" output="screen" respawn="true" /-->
+
+ <!-- UNITY COMM PARAMS -->
+ <group ns="kimera_data_params">
+      <rosparam file="$(find scene_understanding_pkg)/config/kimera_data_params.yaml" />
+ </group>
+</launch>

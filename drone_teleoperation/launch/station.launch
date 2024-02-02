@@ -1,0 +1,17 @@
+  <launch>
+  <!--Run RVIZ--> 
+  <!--rosparam command="load" file="$(find drone_teleoperation)/config/tele_control_params.yaml"/-->
+  <arg name="haptic" default="true"/>
+  
+  
+  <group if="$(arg haptic)">
+  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find arpl_autonomy)/config/station/rviz_config_hri_haptic.rviz">
+   </node>
+   </group>
+   
+   <group unless="$(arg haptic)">
+  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find arpl_autonomy)/config/station/rviz_config_hri.rviz">
+   </node>
+ </group>
+  </launch>
+   

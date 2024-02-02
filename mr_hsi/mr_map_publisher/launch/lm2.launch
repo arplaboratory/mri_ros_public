@@ -1,0 +1,9 @@
+<launch>
+<node pkg="mr_map_publisher" name="mr_map_publisher" type="mr_map_publisher.py" output="screen"/>
+<!-- rosparam command="load" file="/home/arpl/luca_ws/src/mr_hsi/mr_map_publisher/config/map3.yaml"/ -->
+<group ns="map_obs_param">
+      <rosparam file="$(find mr_map_publisher)/config/map2.yaml" />
+ </group>
+
+
+</launch>

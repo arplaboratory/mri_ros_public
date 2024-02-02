@@ -1,0 +1,76 @@
+<launch>
+  <arg name="model"                   default="quadrotor"/>
+  <arg name="platform_type"           default="snapdragonflight"/>
+  <arg name="mass"                    default="0.25"/>
+  <arg name="start_nodelet_manager"   default="true"/>
+  <arg name="nodelet_manager_name"    default="nodelet_manager_control"/>
+  <arg name="color/r"                 default="0.0"/>
+  <arg name="color/g"                 default="0.0"/>
+  <arg name="color/b"                 default="1.0"/>
+  <arg name="color/a"                 default="0.7"/>
+  <arg name="use_rviz"                default="false"/>
+  
+  <group ns="$(arg model)">
+    <param name="mass" value="$(arg mass)"/>
+
+    <!-- Simulator -->
+    <include file="$(find arpl_autonomy)/launch/simulator/simulator_only.launch">
+      <arg name="name"        value="$(arg model)"/>
+      <arg name="type"        value="$(arg platform_type)"/>
+      <arg name="mass"        value="$(arg mass)"/>
+      <arg name="color/r"     value="$(arg color/r)"/>
+      <arg name="color/g"     value="$(arg color/g)"/>
+      <arg name="color/b"     value="$(arg color/b)"/>
+      <arg name="color/a"     value="$(arg color/a)"/>
+    </include>
+
+    <!-- Control -->
+    <node pkg="nodelet"
+      type="nodelet"
+      name="$(arg nodelet_manager_name)"
+      args="manager"
+      output="screen"/>
+  
+    <node pkg="nodelet"
+      type="nodelet"
+      name="trackers_manager"
+      args="load trackers_manager/TrackersManager $(arg nodelet_manager_name)"
+      output="screen">
+      <rosparam file="$(find arpl_autonomy)/config/arpl_sim/default/trackers.yaml"/>
+      <rosparam file="$(find arpl_autonomy)/config/arpl_sim/default/tracker_params.yaml"/>
+      <rosparam file="$(find arpl_autonomy)/config/arpl_sim/default/control_params.yaml"/>
+      <remap from="~odom" to="odom"/>
+      <remap from="~cmd" to="position_cmd"/>
+      <remap from="~qp_tracker/qp_trajectory_pos" to="/quadrotor/arpl_planner_vis"/>
+    </node>
+  
+    <node pkg="nodelet"
+      type="nodelet"
+      args="load mav_control/SO3ControlNodelet $(arg nodelet_manager_name)"
+      name="so3_control"
+      required="true"
+      output="screen">
+      <rosparam file="$(find arpl_autonomy)/config/arpl_sim/default/control_params.yaml"/>
+      <param name="mass" value="$(arg mass)"/>
+      <remap from="~odom" to="odom"/>
+      <remap from="~position_cmd" to="position_cmd"/>
+      <remap from="~so3_cmd" to="so3_cmd"/>
+      <remap from="~motors" to="motors"/>
+    </node>
+
+    <!-- MAV Manager -->
+    <node pkg="mav_manager"
+      type="mav_services"
+      name="mav_services"
+      clear_params="true"
+      output="screen">
+      <rosparam file="$(find arpl_autonomy)/config/arpl_sim/default/mav_manager_params.yaml"/>
+    </node>
+  </group>
+
+  <!-- Rviz Visualization -->
+  <group if="$(arg use_rviz)">
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find arpl_autonomy)/config/station/rviz_config.rviz"/>
+  </group>
+
+</launch>

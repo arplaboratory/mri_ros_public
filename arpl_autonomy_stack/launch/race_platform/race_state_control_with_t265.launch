@@ -1,0 +1,185 @@
+<launch>
+  <!--quadrotor control parameters-->
+  <arg name="mav_name" default="$(env MAV_NAME)"/>
+  <arg name="platform_type" default="$(env PLATFORM_TYPE)"/>
+  <arg name="mass" default="0.923"/>
+  <!--arg name="odom_topic" value="/$(arg mav_name)/quadrotor_ukf/control_odom"/-->
+  <!--arg name="odom_topic" value="/$(arg mav_name)/odom"/-->
+  <arg name="odom_topic" value="/$(arg mav_name)/odom/sample"/>
+  <arg name="control_gains" default="/$(find arpl_autonomy)/config/$(arg platform_type)/default/control_params.yaml"/>
+  <arg name="mav_manager_params_file" default="/$(find arpl_autonomy)/config/$(arg platform_type)/default/mav_manager_params.yaml"/>
+
+  <!--so3cmd_to_mavros interface parameters-->
+  <arg name="num_props" default="4"/>
+  <arg name="kf" default="1.21702136e-8"/>
+  <arg name="lin_cof_a" default="0.00005"/>
+  <arg name="lin_int_b" default="-0.35"/>
+  <!--arg name="kf" default="2.137145e-6"/-->
+  <!--arg name="lin_cof_a" default="0.0015"/-->
+  <!--arg name="lin_int_b" default="-1.5334"/-->
+
+  <!--MAVROS parameters-->
+  <arg name="fcu_url" default="/dev/ttyTHS0:1000000" />
+  <arg name="gcs_url" default="" />
+  <arg name="tgt_system" default="1" />
+  <arg name="tgt_component" default="1" />
+  <arg name="log_output" default="screen" />
+  <arg name="fcu_protocol" default="v2.0" />
+  <arg name="respawn_mavros" default="false" />
+  <arg name="pluginlists_yaml" default="$(find arpl_autonomy)/config/$(arg platform_type)/default/px4_pluginlists.yaml" />
+  <arg name="config_yaml" default="$(find arpl_autonomy)/config/$(arg platform_type)/default/px4_config.yaml" />
+
+  <!--T265 camera parameters-->
+  <arg name="serial_no"           default=""/>
+  <arg name="usb_port_id"         default=""/>
+  <arg name="device_type"         default="t265"/>
+  <arg name="json_file_path"      default=""/>
+  <arg name="camera"              default="camera"/>
+  <arg name="tf_prefix"           default="$(arg camera)"/>
+
+  <arg name="fisheye_width"       default="-1"/> 
+  <arg name="fisheye_height"      default="-1"/>
+  <arg name="enable_fisheye1"     default="false"/>
+  <arg name="enable_fisheye2"     default="false"/>
+
+  <arg name="fisheye_fps"         default="-1"/>
+
+  <arg name="gyro_fps"            default="-1"/>
+  <arg name="accel_fps"           default="-1"/>
+  <arg name="enable_gyro"         default="true"/>
+  <arg name="enable_accel"        default="true"/>
+  <arg name="enable_pose"         default="true"/>
+
+  <arg name="enable_sync"           default="false"/>
+
+  <arg name="linear_accel_cov"      default="0.01"/>
+  <arg name="initial_reset"         default="false"/>
+  <arg name="unite_imu_method"      default="linear_interpolation"/>
+
+  <arg name="publish_odom_tf"     default="true"/>
+
+  <group ns="$(arg mav_name)">
+
+    <param name="mass" value="$(arg mass)"/>
+
+    <node pkg="nodelet"
+      type="nodelet"
+      name="standalone_nodelet"
+      args="manager"
+      output="screen">
+     <rosparam file="$(arg mav_manager_params_file)" />
+   </node>
+
+    <node pkg="nodelet"
+      type="nodelet"
+      name="trackers_manager"
+      args="load trackers_manager/TrackersManager standalone_nodelet"
+      output="screen">
+      <rosparam file="$(find arpl_autonomy)/config/$(arg platform_type)/default/trackers.yaml"/>
+      <rosparam file="$(find arpl_autonomy)/config/$(arg platform_type)/default/tracker_params.yaml"/>
+      <rosparam file="$(arg control_gains)"/>
+      <remap from="~odom" to="$(arg odom_topic)"/>
+      <remap from="~cmd" to="position_cmd"/>
+    </node>
+
+    <node pkg="nodelet"
+      type="nodelet"
+      args="load mav_control/SO3ControlNodelet standalone_nodelet"
+      name="so3_control"
+      required="true"
+      output="screen">
+      <rosparam file="$(arg control_gains)"/>
+      <param name="mass" value="$(arg mass)"/>
+      <param name="use_external_yaw" value="false"/>
+      <remap from="~odom" to="$(arg odom_topic)"/>
+      <remap from="~position_cmd" to="position_cmd"/>
+      <remap from="~so3_cmd" to="so3_cmd"/>
+      <remap from="~motors" to="motors"/>
+    </node>
+
+    <node pkg="nodelet"
+      type="nodelet"
+      args="standalone mavros_interface/SO3CmdToMavros"
+      name="so3cmd_to_mavros_nodelet"
+      required="true"
+      clear_params="true"
+      output="screen">
+      <param name="num_props" value="$(arg num_props)"/>
+      <param name="kf" value="$(arg kf)"/>
+      <param name="lin_cof_a" value="$(arg lin_cof_a)"/>
+      <param name="lin_int_b" value="$(arg lin_int_b)"/>
+      <remap from="~odom" to="$(arg odom_topic)"/>
+      <remap from="~so3_cmd" to="so3_cmd"/>
+      <remap from="~imu" to="mavros/imu/data" />
+      <remap from="~attitude_raw" to="mavros/setpoint_raw/attitude" />
+      <remap from="~odom_pose" to="/$(arg mav_name)/pose" />
+    </node>
+
+    <include file="$(find arpl_autonomy)/launch/race_platform/perception/t265_nodelet.launch">
+      <arg name="manager"                  value="standalone_nodelet"/>
+      <arg name="tf_prefix"                value="$(arg tf_prefix)"/>
+      <arg name="serial_no"                value="$(arg serial_no)"/>
+      <arg name="usb_port_id"              value="$(arg usb_port_id)"/>
+      <arg name="device_type"              value="$(arg device_type)"/>
+      <arg name="json_file_path"           value="$(arg json_file_path)"/>
+
+      <arg name="enable_sync"              value="$(arg enable_sync)"/>
+
+      <arg name="fisheye_width"            value="$(arg fisheye_width)"/>
+      <arg name="fisheye_height"           value="$(arg fisheye_height)"/>
+      <arg name="enable_fisheye1"          value="$(arg enable_fisheye1)"/>
+      <arg name="enable_fisheye2"          value="$(arg enable_fisheye2)"/>
+
+      <arg name="fisheye_fps"              value="$(arg fisheye_fps)"/>
+      <arg name="gyro_fps"                 value="$(arg gyro_fps)"/>
+      <arg name="accel_fps"                value="$(arg accel_fps)"/>
+      <arg name="enable_gyro"              value="$(arg enable_gyro)"/>
+      <arg name="enable_accel"             value="$(arg enable_accel)"/>
+      <arg name="enable_pose"              value="$(arg enable_pose)"/>
+
+      <arg name="linear_accel_cov"         value="$(arg linear_accel_cov)"/>
+      <arg name="initial_reset"            value="$(arg initial_reset)"/>
+      <arg name="unite_imu_method"         value="$(arg unite_imu_method)"/>
+
+      <arg name="publish_odom_tf"          value="$(arg publish_odom_tf)"/>
+      <!--remap from="/vio/pose" to="/$(arg mav_name)/mavros/vision_pose/pose"/-->
+      <!--remap from="/odom/sample" to="odom"/-->
+    </include>
+
+    <node pkg="mav_manager"
+      type="mav_services"
+      name="mav_services"
+      output="screen">
+      <rosparam file="$(arg mav_manager_params_file)" />
+      <remap from="odom" to="$(arg odom_topic)"/>
+    </node>
+
+    <node name="odom_throttler"
+      type="throttle"
+      pkg="topic_tools"
+      args="messages quadrotor_ukf/control_odom 30 quadrotor_ukf/control_odom_throttled"/>
+
+    <node pkg="mavros" type="mavros_node" name="mavros" required="$(eval not respawn_mavros)" clear_params="true" output="$(arg log_output)" respawn="$(arg respawn_mavros)">
+    	<param name="fcu_url" value="$(arg fcu_url)" />
+    	<param name="gcs_url" value="$(arg gcs_url)" />
+    	<param name="target_system_id" value="$(arg tgt_system)" />
+    	<param name="target_component_id" value="$(arg tgt_component)" />
+    	<param name="fcu_protocol" value="$(arg fcu_protocol)" />
+    	<!-- load blacklist, config -->
+    	<rosparam command="load" file="$(arg pluginlists_yaml)" />
+    	<rosparam command="load" file="$(arg config_yaml)" />
+      <remap from="/$(arg mav_name)/mavros/vision_pose/pose" to="/vio/pose"/>
+      <!--remap from="/race1/mavros/mocap/pose" to="/race1/pose"/-->
+      <!--remap from="/race1/mavros/odometry/out" to="/race1/odom"/-->
+    </node>
+
+  <node pkg="master_discovery_fkie" type="master_discovery" name="master_discovery" output="screen">
+	      <!--param name="mcast_group" value="228.0.0.1" /-->
+  </node>
+
+  <node pkg="master_sync_fkie" type="master_sync" name="multimaster_client_sync" output="screen">
+  </node>
+   </group>
+</launch>
+ 
+

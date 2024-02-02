@@ -1,0 +1,20 @@
+<launch>
+<group>
+
+ <!--quadrotor VIO--> 
+ <include file="$(find arpl_autonomy)/launch/race_platform/perception/openvins_d435i_nodelet.launch" />
+
+ <!--quadrotor control--> 
+ <include file="$(find arpl_autonomy)/launch/race_platform/race_state_control_with_openvins.launch"/>
+
+ <!--mapping--> 
+
+</group>
+</launch>
+
+
+
+
+
+
+

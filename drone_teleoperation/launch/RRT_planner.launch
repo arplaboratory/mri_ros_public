@@ -1,0 +1,14 @@
+<launch>
+<!--param name="ROS_IP" value="128.238.39.127" /-->
+<arg name="mav_name" default="$(env MAV_NAME)"/> <!-- "$(env MAV_NAME)" -->
+
+<arg name="odom_topic" value="/$(arg mav_name)/odom"/>
+<arg name="transition_topic" value="/$(arg mav_name)/trackers_manager/transition"/>
+<arg name="position_cmd_topic" value="/$(arg mav_name)/position_cmd"/>
+
+
+<node name="RRT_start" pkg="drone_teleoperation" type="rrt_star_2D_with_voxles.py" args=" wait" output="screen" respawn="true">
+<remap from="odom" to="$(arg odom_topic)"/>
+</node>
+</launch>
+

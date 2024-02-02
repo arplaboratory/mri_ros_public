@@ -1,0 +1,7 @@
+<launch>
+<param name="ROS_IP" value="128.238.39.127" />
+
+<node name="Cube_pose" pkg="scene_understanding_pkg" type="SU_Unity_comm" args="--wait" output="screen" respawn="true" />
+
+
+</launch>

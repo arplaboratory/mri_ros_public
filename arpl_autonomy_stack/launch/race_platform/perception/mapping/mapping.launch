@@ -1,0 +1,12 @@
+<launch>
+<group>
+   
+<include file="$(find disparity)/launch/disparity_d435.launch" />
+<include file="$(find pointcloud_manager)/launch/pointcloud_manager_nodelet.launch" />
+<include file="$(find arpl_autonomy)/launch/race_platform/perception/mapping/pc_manager.launch" />
+   
+</group>
+</launch>
+
+
+
