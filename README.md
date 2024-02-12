@@ -120,7 +120,7 @@ $ pip install scipy==1.8.0
 $ pip install cvxopt==1.2.7
 ```
 
-Moreover, The MRI_ROS package is also dependannt from: 
+Moreover, The MRI_ROS package is also dependent from: 
 
 - Opencv 
 - pcl msgs:  [PCL MSG](https://wiki.ros.org/pcl_msgs)<br />
@@ -128,7 +128,7 @@ Moreover, The MRI_ROS package is also dependannt from:
 - Cv Bridge:  [PCL ](https://wiki.ros.org/cv_bridge)<br />
 - Image transport:  [Image Transport](https://wiki.ros.org/image_transport)<br />
 - Voxblox (provided with this repository)
-```
+
 
 Our software, at least for preliminary test is also dependant by our custom made quadrotor simulator. Since it is a private repository we can not open source at the time, but please have a look to this google drive folder where all the packages required to run the simulation are provided as ROS executables  [ROS Executables](https://drive.google.com/drive/folders/1IAsSDs-94kWY_EIdiKLBK7TL68ThhSf1?usp=drive_link)<br />
 
